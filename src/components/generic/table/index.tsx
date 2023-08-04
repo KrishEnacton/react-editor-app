@@ -9,6 +9,8 @@ import CustomTooltip from "../CustomTooltip";
 import { columnDefs } from "./config";
 import SelectDropdown from "../SelectDropdown";
 import { config } from "../../../config";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { arrayAtomFamily } from "../../../atoms";
 
 const truncateCellRenderer: React.FC<any> = ({ value }) => (
   <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
@@ -17,6 +19,7 @@ const truncateCellRenderer: React.FC<any> = ({ value }) => (
 export default function Table({ rowData, setRowData, merchantId }: any) {
   const gridRef = useRef(null);
   const [searchValue, setSearchValue] = useState("");
+  const [coupons, setCoupons] = useRecoilState(arrayAtomFamily("allCoupons"));
   const [selectedRows, setSelectedRows] = useState([]);
   // State to store the grid API reference
   const [gridApi, setGridApi] = useState(null);
@@ -24,7 +27,7 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
 
   const getCoupons = async () => {
     const data: any = await getCouponData(merchantId);
-    if (data) setRowData(data.data);
+    if (data) setCoupons(data.data);
   };
 
   useEffect(() => {
@@ -32,7 +35,7 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
   }, [searchValue]);
 
   const searchHandler = (searchValue: any) => {
-    setRowData(
+    setCoupons(
       rowData.filter((item: any) => {
         return item.discount?.toLowerCase()?.includes(searchValue?.toLowerCase());
       })
@@ -126,7 +129,7 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
         <AgGridReact
           ref={gridRef}
           defaultColDef={defaultColDef}
-          rowData={rowData}
+          rowData={coupons}
           columnDefs={columnDefs}
           onCellEditingStopped={onCellEditingStopped}
           rowHeight={75}

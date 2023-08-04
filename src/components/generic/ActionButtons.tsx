@@ -3,9 +3,20 @@ import { ICellRendererParams } from "ag-grid-community";
 import { config } from "../../config";
 import PrimaryButton from "../core/PrimaryButton";
 import { useCoupons } from "../../hooks/use-Coupons";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { arrayAtomFamily } from "../../atoms";
+import { useParams } from "react-router-dom";
 
 export default ({ data }: ICellRendererParams) => {
-  const { updateCoupon } = useCoupons();
+  const { getCouponData, updateCoupon } = useCoupons();
+  const setCoupons = useSetRecoilState(arrayAtomFamily("allCoupons"));
+
+  const { merchantId } = useParams();
+
+  const getCoupons = async () => {
+    const data: any = await getCouponData(merchantId);
+    if (data) setCoupons(data.data);
+  };
   return (
     <div className="custom-element flex  space-x-3">
       {data &&
@@ -21,6 +32,7 @@ export default ({ data }: ICellRendererParams) => {
                 //@ts-ignore
                 const body = config.actionButtonsBody[data.editor_status][editedButton];
                 const response = await updateCoupon(data.id, body);
+                await getCoupons();
               }}
             />
           );

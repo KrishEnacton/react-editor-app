@@ -14,6 +14,7 @@ export function useCoupons() {
       api.get(config.local_url + config.coupons_endpoint + "/" + id).then((res: any) => {
         getAllFragments();
         getAllBrands();
+        setCoupons(res.data);
         resolve(res);
       });
     });

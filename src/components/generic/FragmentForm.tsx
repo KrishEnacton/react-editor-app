@@ -1,12 +1,15 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import { arrayAtomFamily } from "../../atoms";
 import { useCoupons } from "../../hooks/use-Coupons";
-import FullScreenLoader from "../core/loaders/FullScreen";
 import SpinnerLoader from "../core/loaders/SpinnerLoader";
 
 export default function FragmentForm({ data, selectedId, merchant, onClose }: any) {
   const [formData, setFormData] = useState(data);
-  const { refragmentCoupon, updateCoupon } = useCoupons();
+  const { refragmentCoupon, updateCoupon, getCouponData } = useCoupons();
+  const setCoupons = useSetRecoilState(arrayAtomFamily("allCoupons"));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,7 +21,12 @@ export default function FragmentForm({ data, selectedId, merchant, onClose }: an
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
+  const { merchantId } = useParams();
 
+  const getCoupons = async () => {
+    const data: any = await getCouponData(merchantId);
+    if (data) setCoupons(data.data);
+  };
   const refragmentCouponHandler = async () => {
     const {
       raw_title,
@@ -74,6 +82,7 @@ export default function FragmentForm({ data, selectedId, merchant, onClose }: an
         const newObject = { ...formData };
         delete newObject.status;
         const res = await updateCoupon(data.id, newObject);
+        await getCoupons();
         onClose();
       }}
     >
