@@ -15,7 +15,7 @@ export default ({ data }: ICellRendererParams) => {
 
   const getCoupons = async () => {
     const data: any = await getCouponData(merchantId);
-    if (data) setCoupons(data.data);
+    // if (data) setCoupons(data.data);
   };
   return (
     <div className="custom-element flex  space-x-3">

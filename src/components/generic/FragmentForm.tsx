@@ -25,7 +25,7 @@ export default function FragmentForm({ data, selectedId, merchant, onClose }: an
 
   const getCoupons = async () => {
     const data: any = await getCouponData(merchantId);
-    if (data) setCoupons(data.data);
+    // if (data) setCoupons(data.data);
   };
   const refragmentCouponHandler = async () => {
     const {

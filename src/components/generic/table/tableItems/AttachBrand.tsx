@@ -15,7 +15,7 @@ const AttachBrand = forwardRef((props: any, ref) => {
 
   const getCoupons = async () => {
     const data: any = await getCouponData(merchantId);
-    if (data) setCoupons(data.data);
+    // if (data) setCoupons(data.data);
   };
   useImperativeHandle(ref, () => ({
     getValue: () => "abc",

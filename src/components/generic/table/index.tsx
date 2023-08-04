@@ -19,7 +19,7 @@ const truncateCellRenderer: React.FC<any> = ({ value }) => (
 export default function Table({ rowData, setRowData, merchantId }: any) {
   const gridRef = useRef(null);
   const [searchValue, setSearchValue] = useState("");
-  const [coupons, setCoupons] = useRecoilState(arrayAtomFamily("allCoupons"));
+  // const [coupons, setCoupons] = useRecoilState(arrayAtomFamily("allCoupons"));
   const [selectedRows, setSelectedRows] = useState([]);
   // State to store the grid API reference
   const [gridApi, setGridApi] = useState(null);
@@ -27,7 +27,7 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
 
   const getCoupons = async () => {
     const data: any = await getCouponData(merchantId);
-    if (data) setCoupons(data.data);
+    if (data) setRowData(data.data);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
   }, [searchValue]);
 
   const searchHandler = (searchValue: any) => {
-    setCoupons(
+    setRowData(
       rowData.filter((item: any) => {
         return item.discount?.toLowerCase()?.includes(searchValue?.toLowerCase());
       })
@@ -129,7 +129,7 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
         <AgGridReact
           ref={gridRef}
           defaultColDef={defaultColDef}
-          rowData={coupons}
+          rowData={rowData}
           columnDefs={columnDefs}
           onCellEditingStopped={onCellEditingStopped}
           rowHeight={75}
@@ -141,7 +141,7 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
           rowSelection={"multiple"}
           suppressRowClickSelection={true}
           tooltipHideDelay={2000}
-          // onGridReady={(params: any) => setGridApi(params.api)}
+          onGridReady={(params: any) => setGridApi(params.api)}
           components={{ imageCellRenderer: ImageCellRenderer }}
         />
       </div>
