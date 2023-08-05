@@ -11,9 +11,12 @@ export function useMerchants() {
   };
   const getMerchantInfo = (id: any) => {
     return new Promise((resolve) => {
-      api.get(config.local_url + config.merchant_info_endpoint + "/" + id).then((res: any) => {
-        resolve(res.data.merchant.name);
-      });
+      id &&
+        api
+          .get(config.local_url + config.merchant_info_endpoint + "/" + id)
+          .then((res: any) => {
+            resolve(res.data.merchant);
+          });
     });
   };
 

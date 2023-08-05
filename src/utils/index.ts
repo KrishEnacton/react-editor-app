@@ -11,6 +11,9 @@ export const convertFragmentDataIntoOptions = (inputObj: any) => {
 };
 
 export function getMatchingBrands(catsArray: any, brandsArray: any) {
+  if (!Array.isArray(catsArray)) {
+    catsArray = [catsArray]; // Convert to an array with a single element
+  }
   const matchingBrandIds = [];
 
   for (const brand of brandsArray) {

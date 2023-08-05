@@ -1,7 +1,17 @@
+/* eslint-disable no-var */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ColDef } from "ag-grid-community";
 import "ag-grid-enterprise";
 import { useCoupons } from "../../../hooks/use-Coupons";
@@ -9,37 +19,54 @@ import CustomTooltip from "../CustomTooltip";
 import { columnDefs } from "./config";
 import SelectDropdown from "../SelectDropdown";
 import { config } from "../../../config";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { arrayAtomFamily } from "../../../atoms";
 
 const truncateCellRenderer: React.FC<any> = ({ value }) => (
-  <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{value}</div>
+  <div
+    style={{
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    }}
+  >
+    {value}
+  </div>
 );
 
 export default function Table({ rowData, setRowData, merchantId }: any) {
   const gridRef = useRef(null);
   const [searchValue, setSearchValue] = useState("");
-  // const [coupons, setCoupons] = useRecoilState(arrayAtomFamily("allCoupons"));
   const [selectedRows, setSelectedRows] = useState([]);
   // State to store the grid API reference
   const [gridApi, setGridApi] = useState(null);
-  const { getCouponData, updateCoupon } = useCoupons();
+  const { updateCoupon } = useCoupons();
+  const coupons = useRecoilValue(arrayAtomFamily("allCoupons"));
+  const [tableData, setTableData] = useState([]);
 
-  const getCoupons = async () => {
-    const data: any = await getCouponData(merchantId);
-    if (data) setRowData(data.data);
-  };
+  useEffect(() => {
+    coupons &&
+      coupons.length > 0 &&
+      setTableData(JSON.parse(JSON.stringify(coupons)));
+    return () => {};
+  }, [coupons]);
 
   useEffect(() => {
     searchHandler(searchValue);
   }, [searchValue]);
 
   const searchHandler = (searchValue: any) => {
-    setRowData(
-      rowData.filter((item: any) => {
-        return item.discount?.toLowerCase()?.includes(searchValue?.toLowerCase());
-      })
-    );
+    if (searchValue) {
+      setTableData(
+        tableData.filter((item: any) => {
+          return item.title
+            ?.toLowerCase()
+            ?.includes(searchValue?.toLowerCase());
+        })
+      );
+    } else {
+      setTableData(JSON.parse(JSON.stringify(coupons)));
+    }
   };
 
   const handleGlobalSearch = useCallback((event: any) => {
@@ -75,14 +102,14 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
 
   const onCellEditingStopped = async (params: any) => {
     const { data, column, newValue } = params;
-    const updatedData = rowData.map((row: any) =>
+    const newDataData = JSON.parse(JSON.stringify(rowData));
+    const updatedData = newDataData.map((row: any) =>
       row.id === data.id ? { ...row, [column.getColId()]: newValue } : row
     );
 
     const updatedUser = updatedData.find((user: any) => user.id === data.id);
     if (updatedUser) {
-      const response = updateCoupon(data.id, updatedUser);
-      await getCoupons();
+      const response: any = await updateCoupon(data.id, updatedUser);
     }
   };
 
@@ -91,7 +118,8 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
   };
 
   const onPageSizeChanged = useCallback(() => {
-    var value = (document.getElementById("page-size") as HTMLInputElement).value;
+    var value = (document.getElementById("page-size") as HTMLInputElement)
+      .value;
     //@ts-ignore
     gridRef.current!.api.paginationSetPageSize(Number(value));
   }, []);
@@ -101,7 +129,9 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
     const nodesToUpdate = gridRef.current!.api.getSelectedNodes();
     if (nodesToUpdate.length > 0) {
       setSelectedRows(nodesToUpdate);
-      const selectedIds = nodesToUpdate.map((node: any) => node.data.id).join(",");
+      const selectedIds = nodesToUpdate
+        .map((node: any) => node.data.id)
+        .join(",");
 
       alert(`You selected ${selectedIds}`);
     }
@@ -110,14 +140,19 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
   return (
     <div>
       <div className="flex items-center justify-start mb-4 flex-col sm:flex-row space-x-12 space-y-4 sm:space-y-0">
-        <SelectDropdown label="" options={config.limitOptions} onChange={onPageSizeChanged} id="page-size" />
+        <SelectDropdown
+          label=""
+          options={config.limitOptions}
+          onChange={onPageSizeChanged}
+          id="page-size"
+        />
         <div>
           <input
             type="text"
-            placeholder="Search by Offer title..."
+            placeholder="Search by discount..."
             value={searchValue}
             onChange={handleGlobalSearch}
-            className="outline-none border border-gray-400 rounded p-1"
+            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           />
         </div>
 
@@ -125,11 +160,14 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
           <button onClick={updateSelectedRows}>Update Selected Rows</button>
         </div>
       </div>
-      <div className="ag-theme-alpine" style={{ width: "98vw", height: "84vh", fontSize: "17px" }}>
+      <div
+        className="ag-theme-alpine"
+        style={{ width: "98vw", height: "84vh", fontSize: "17px" }}
+      >
         <AgGridReact
           ref={gridRef}
           defaultColDef={defaultColDef}
-          rowData={rowData}
+          rowData={tableData}
           columnDefs={columnDefs}
           onCellEditingStopped={onCellEditingStopped}
           rowHeight={75}
@@ -141,7 +179,7 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
           rowSelection={"multiple"}
           suppressRowClickSelection={true}
           tooltipHideDelay={2000}
-          onGridReady={(params: any) => setGridApi(params.api)}
+          // onGridReady={(params: any) => setGridApi(params.api)}
           components={{ imageCellRenderer: ImageCellRenderer }}
         />
       </div>
