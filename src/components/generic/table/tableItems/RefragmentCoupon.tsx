@@ -8,7 +8,7 @@ import { useRecoilValue } from "recoil";
 import { arrayAtomFamily } from "../../../../atoms";
 import FormModal, { FormModalRefType } from "../../../core/modals/FormModal";
 import PrimaryButton from "../../../core/PrimaryButton";
-import FragmentForm from "../../FragmentForm";
+import FragmentForm from "../FragmentForm";
 import SelectDropdown from "../../SelectDropdown";
 
 const RefragmentCoupon = forwardRef((props: any, ref) => {

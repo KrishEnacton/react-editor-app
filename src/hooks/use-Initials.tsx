@@ -2,10 +2,9 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/apiProvider";
 import { config } from "../config";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState} from "recoil";
 import { arrayAtomFamily } from "../atoms";
 import { convertFragmentDataIntoOptions } from "../utils";
-import { useMerchants } from "./use-Merchants";
 
 export function useInitials() {
   const [fragments, setFragments] = useRecoilState(

@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { arrayAtomFamily } from "../../atoms";
-import { useCoupons } from "../../hooks/use-Coupons";
-import SpinnerLoader from "../core/loaders/SpinnerLoader";
-import PrimaryButton from "../core/PrimaryButton";
+import { arrayAtomFamily } from "../../../atoms";
+import { useCoupons } from "../../../hooks/use-Coupons";
+import SpinnerLoader from "../../core/loaders/SpinnerLoader";
+import PrimaryButton from "../../core/PrimaryButton";
+import { getFragmentBody } from "../../../helpers/table";
 
 export default function FragmentForm({ data, selectedId, onClose }: any) {
   const [formData, setFormData] = useState(data);
@@ -27,41 +27,7 @@ export default function FragmentForm({ data, selectedId, onClose }: any) {
   };
 
   const refragmentCouponHandler = async () => {
-    const {
-      raw_title,
-      raw_description,
-      terms,
-      title,
-      description,
-      applicable_on,
-      user_type,
-      discount,
-      not_applicable_on,
-      min_purchase,
-      max_discount,
-      brands,
-      payment_mode,
-      merchant_id,
-      exclusive,
-    } = data;
-    const fragmentBody = {
-      raw_title,
-      raw_description,
-      terms,
-      title,
-      description,
-      applicable_on,
-      user_type,
-      discount,
-      not_applicable_on,
-      min_purchase,
-      max_discount,
-      payment_mode,
-      exclusive,
-      merchant_id,
-      merchant_name: currentMerchant?.name,
-      brands,
-    };
+   const fragmentBody = getFragmentBody(data,currentMerchant)
     const response: any = await refragmentCoupon(selectedId, fragmentBody);
     setFormData(response.data);
     setInitLoading(false);

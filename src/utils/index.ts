@@ -87,7 +87,7 @@ export function formatDateToUTC2(inputDate: any) {
     const timePart = dateParts[1];
 
     const [year, month, day] = datePart?.split("-").map(Number);
-    const [hours, minutes, seconds] = timePart.split(":").map(Number);
+    const [hours, minutes, seconds] = timePart?.split(":").map(Number);
 
     const date = new Date(
       Date.UTC(year, month - 1, day, hours, minutes, seconds)

@@ -4,6 +4,7 @@ import MultiSelectDropdown from "./tableItems/MultiSelectDropdown";
 import ActionButtons from "../ActionButtons";
 import RefragmentCoupon from "./tableItems/RefragmentCoupon";
 import AttachBrand from "./tableItems/AttachBrand";
+import CustomTooltip, { truncateCellRenderer } from "../CustomTooltip";
 
 const MultiSelectEditor = (params: any, columnId: string) => {
   if (params.data) {
@@ -381,3 +382,39 @@ export const columnDefs: any = [
 
 
 
+export const defaultColDef = {
+  editable: true,
+  sortable: true,
+  minWidth: 100,
+  filter: true,
+  resizable: true,
+  tooltipComponent: CustomTooltip,
+  cellRenderer: truncateCellRenderer,
+};
+
+export const sideBar = {
+  toolPanels: [
+    {
+      id: "columns",
+      labelDefault: "Columns",
+      labelKey: "columns",
+      iconKey: "columns",
+      toolPanel: "agColumnsToolPanel",
+      minWidth: 225,
+      width: 225,
+      maxWidth: 225,
+    },
+    {
+      id: "filters",
+      labelDefault: "Filters",
+      labelKey: "filters",
+      iconKey: "filter",
+      toolPanel: "agFiltersToolPanel",
+      minWidth: 180,
+      maxWidth: 400,
+      width: 250,
+    },
+  ],
+  position: "right",
+  defaultToolPanel: "",
+};
