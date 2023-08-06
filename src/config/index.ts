@@ -34,44 +34,71 @@ export const config = {
   actionButtonsBody: {
     not_published: {
       publish: {
-        status: "publish",
-        published_at: Date.now(),
+        className: "!bg-indigo-600",
+        body: {
+          status: "publish",
+          published_at: Date.now(),
+        },
       },
       trash: {
-        status: "trash",
+        className: "!bg-red-600",
+        body: {
+          status: "trash",
+        },
       },
     },
     rejected: {
       restore: {
-        status: "draft",
+        className: "!bg-green-500",
+        body: {
+          status: "draft",
+        },
       },
       trash: {
-        status: "trash",
+        className: "!bg-red-600",
+        body: {
+          status: "trash",
+        },
       },
     },
     active: {
       trash: {
-        status: "trash",
+        className: "!bg-red-600",
+        body: {
+          status: "trash",
+        },
       },
     },
     expired: {
       trash: {
-        status: "trash",
+        className: "!bg-red-600",
+        body: {
+          status: "trash",
+        },
       },
     },
     stale: {
       trash: {
-        status: "trash",
+        className: "!bg-red-600",
+        body: {
+          status: "trash",
+        },
       },
     },
     trashed: {
       restore: {
-        status: "draft",
+        className: "!bg-green-500",
+        body: {
+          status: "draft",
+        },
       },
     },
     missing: {
       trash: {
-        status: "trash",
+        className: "!bg-red-600",
+        body: {
+          status: "trash",
+        },
       },
     },
   },

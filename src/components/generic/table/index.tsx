@@ -21,51 +21,45 @@ import SelectDropdown from "../SelectDropdown";
 import { config } from "../../../config";
 import { useRecoilValue } from "recoil";
 import { arrayAtomFamily } from "../../../atoms";
+import PrimaryButton from "../../core/PrimaryButton";
 
-const truncateCellRenderer: React.FC<any> = ({ value }) => (
-  <div
-    style={{
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    }}
-  >
-    {value}
-  </div>
-);
-
-export default function Table({ rowData, setRowData, merchantId }: any) {
+export default function Table({ rowData, setRowData }: any) {
   const gridRef = useRef(null);
   const [searchValue, setSearchValue] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
-  // State to store the grid API reference
   const [gridApi, setGridApi] = useState(null);
-  const { updateCoupon } = useCoupons();
   const coupons = useRecoilValue(arrayAtomFamily("allCoupons"));
-  const [tableData, setTableData] = useState([]);
+  const { updateCoupon } = useCoupons();
 
-  useEffect(() => {
-    coupons &&
-      coupons.length > 0 &&
-      setTableData(JSON.parse(JSON.stringify(coupons)));
-    return () => {};
-  }, [coupons]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     searchHandler(searchValue);
   }, [searchValue]);
 
+  const truncateCellRenderer: React.FC<any> = ({ value }) => (
+    <div
+      style={{
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }}
+    >
+      {loading ? null : value}
+    </div>
+  );
+
   const searchHandler = (searchValue: any) => {
     if (searchValue) {
-      setTableData(
-        tableData.filter((item: any) => {
+      setRowData(
+        rowData.filter((item: any) => {
           return item.title
             ?.toLowerCase()
             ?.includes(searchValue?.toLowerCase());
         })
       );
     } else {
-      setTableData(JSON.parse(JSON.stringify(coupons)));
+      setRowData(JSON.parse(JSON.stringify(coupons)));
     }
   };
 
@@ -84,6 +78,7 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
         });
         //@ts-ignore
         gridApi.onFilterChanged();
+        setLoading(false);
       }
     }
   }, [gridApi]);
@@ -102,20 +97,18 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
 
   const onCellEditingStopped = async (params: any) => {
     const { data, column, newValue } = params;
-    const newDataData = JSON.parse(JSON.stringify(rowData));
-    const updatedData = newDataData.map((row: any) =>
+    // const newDataData = JSON.parse(JSON.stringify(coupons));
+    const updatedData = rowData.map((row: any) =>
       row.id === data.id ? { ...row, [column.getColId()]: newValue } : row
     );
 
     const updatedUser = updatedData.find((user: any) => user.id === data.id);
     if (updatedUser) {
-      const response: any = await updateCoupon(data.id, updatedUser);
+      await updateCoupon(data.id, updatedUser);
     }
   };
 
-  const ImageCellRenderer: React.FC<{ value: string }> = ({ value }) => {
-    return <img src={value} alt="Profile" width="35" height="35" />;
-  };
+
 
   const onPageSizeChanged = useCallback(() => {
     var value = (document.getElementById("page-size") as HTMLInputElement)
@@ -127,19 +120,42 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
   const updateSelectedRows = useCallback(() => {
     //@ts-ignore
     const nodesToUpdate = gridRef.current!.api.getSelectedNodes();
-    if (nodesToUpdate.length > 0) {
-      setSelectedRows(nodesToUpdate);
-      const selectedIds = nodesToUpdate
-        .map((node: any) => node.data.id)
-        .join(",");
-
-      alert(`You selected ${selectedIds}`);
-    }
+    const selectedIds = nodesToUpdate.map((node: any) => node.data.id);
+    setSelectedRows(selectedIds);
   }, [gridRef]);
 
+  const sideBar = useMemo(() => {
+    return {
+      toolPanels: [
+        {
+          id: "columns",
+          labelDefault: "Columns",
+          labelKey: "columns",
+          iconKey: "columns",
+          toolPanel: "agColumnsToolPanel",
+          minWidth: 225,
+          width: 225,
+          maxWidth: 225,
+        },
+        {
+          id: "filters",
+          labelDefault: "Filters",
+          labelKey: "filters",
+          iconKey: "filter",
+          toolPanel: "agFiltersToolPanel",
+          minWidth: 180,
+          maxWidth: 400,
+          width: 250,
+        },
+      ],
+      position: "right",
+      defaultToolPanel: "",
+    };
+  }, []);
+
   return (
-    <div>
-      <div className="flex items-center justify-start mb-4 flex-col sm:flex-row space-x-12 space-y-4 sm:space-y-0">
+    <div className="w-full flex items-center justify-center flex-col">
+      <div className="flex w-[95vw] items-center justify-start mb-4 flex-col sm:flex-row space-x-12 space-y-4 sm:space-y-0">
         <SelectDropdown
           label=""
           options={config.limitOptions}
@@ -156,18 +172,24 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
           />
         </div>
 
-        <div style={{ marginBottom: "5px" }}>
-          <button onClick={updateSelectedRows}>Update Selected Rows</button>
-        </div>
+        {selectedRows.length > 0 && (
+          <PrimaryButton
+            label={"Update Selected Rows"}
+            onClick={() => {
+              alert(`You selected ${selectedRows}`);
+            }}
+            customClass={"!h-[36px]"}
+          />
+        )}
       </div>
       <div
-        className="ag-theme-alpine"
-        style={{ width: "98vw", height: "84vh", fontSize: "17px" }}
+        className={"ag-theme-alpine " + `${loading ? "hidden" : "block"}`}
+        style={{ width: "95vw", height: "86vh", fontSize: "17px" }}
       >
         <AgGridReact
           ref={gridRef}
           defaultColDef={defaultColDef}
-          rowData={tableData}
+          rowData={rowData}
           columnDefs={columnDefs}
           onCellEditingStopped={onCellEditingStopped}
           rowHeight={75}
@@ -175,12 +197,12 @@ export default function Table({ rowData, setRowData, merchantId }: any) {
           paginationPageSize={10}
           tooltipShowDelay={0}
           animateRows={true}
-          sideBar={true}
+          onRowSelected={updateSelectedRows}
           rowSelection={"multiple"}
           suppressRowClickSelection={true}
           tooltipHideDelay={2000}
-          // onGridReady={(params: any) => setGridApi(params.api)}
-          components={{ imageCellRenderer: ImageCellRenderer }}
+          sideBar={sideBar}
+          onGridReady={(params: any) => setGridApi(params.api)}
         />
       </div>
     </div>

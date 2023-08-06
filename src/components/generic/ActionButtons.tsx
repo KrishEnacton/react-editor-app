@@ -26,11 +26,11 @@ export default ({ data }: ICellRendererParams) => {
                   setLoading(true);
                   const editedButton = button?.toLowerCase();
                   //@ts-ignore
-                  const body = config.actionButtonsBody[data.editor_status][editedButton];
-                  await updateCoupon(data.id, body);
-                  
-                  setLoading(false);
+                  const body = config.actionButtonsBody[data.editor_status][editedButton]["body"];
+                  await updateCoupon(data.id, body);                  
+                  setLoading(false);                  
                 }}
+                customClass={`${config.actionButtonsBody[data.editor_status][button?.toLowerCase()]["className"]}`}
               />
             );
           }

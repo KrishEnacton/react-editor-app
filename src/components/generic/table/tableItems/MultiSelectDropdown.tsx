@@ -7,17 +7,21 @@ interface Option {
   label: string;
 }
 
+function convertIdsToObjects(idsArray: any) {
+  return idsArray.map((id: any) => ({
+    value: id.toString(),
+    label: id.toString(),
+  }));
+}
+
 export default forwardRef((props: any, ref) => {
   const { columnId } = props;
   const [selectedOptions, setSelectedOptions] = useState<Option[]>(
-    Array.isArray(props.value)
-      ? props.value.map((item: any) => ({ value: String(item), label: String(item) }))
-      : [
-          {
-            value: props.value,
-            label: props.value,
-          },
-        ]
+    props.value
+      ? convertIdsToObjects(
+          props?.value?.split(",").map((id: any) => Number(id.trim()))
+        )
+      : []
   );
   function removeDuplicates(arr: Option[]): Option[] {
     const uniqueValues = new Set<string>();
@@ -90,7 +94,13 @@ export default forwardRef((props: any, ref) => {
       : [];
   return (
     <div className="mood" tabIndex={1}>
-      <Select isMulti options={options} value={selectedOptions} closeMenuOnSelect={false} onChange={handleChange} />
+      <Select
+        isMulti
+        options={options}
+        value={selectedOptions}
+        closeMenuOnSelect={false}
+        onChange={handleChange}
+      />
     </div>
   );
 });
